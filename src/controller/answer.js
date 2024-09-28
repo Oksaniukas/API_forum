@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
 import AnswerModel from "../model/answer.js";
-import answer from "../model/answer.js";
 
 const GET_ANSWER_BY_QUESTION_ID = async (req, res) => {
   const questionId = req.params.id;
@@ -12,8 +11,6 @@ const GET_ANSWER_BY_QUESTION_ID = async (req, res) => {
         .status(404)
         .json({ message: "No answers found for this question" });
     }
-
-    // await response.save();
 
     res.status(200).json(answers); // Return the answers as a JSON response
   } catch (error) {

@@ -3,8 +3,8 @@ import "dotenv/config";
 import mongoose from "mongoose";
 import cors from "cors";
 
-import inventoriesRouter from "./src/route/inventory.js";
-import companiesRouter from "./src/route/company.js";
+import answersRouter from "./src/route/answer.js";
+import questionsRouter from "./src/route/question.js";
 
 const app = express();
 app.use(cors());
@@ -17,8 +17,8 @@ mongoose
     console.log(err);
   });
 
-app.use(inventoriesRouter);
-app.use(companiesRouter);
+app.use(answersRouter);
+app.use(questionsRouter);
 
 
 app.use((req, res) => {

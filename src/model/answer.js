@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const answerSchema = mongoose.Schema({
   id: { type: String, required: true },
   answerText: { type: String, required: true },
-  date: { type: Date, required: true },
+  date: { type: Date, required: true , default: Date.now},
   gainedLikesNumber: { type: Number, required: true },
   questionId: { type: String, required: true },
 });
