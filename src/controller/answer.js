@@ -4,7 +4,7 @@ import AnswerModel from "../model/answer.js";
 const GET_ANSWER_BY_QUESTION_ID = async (req, res) => {
   const questionId = req.params.id;
   try {
-    const answers = await AnswerModel.find({ question_id: questionId });
+    const answers = await AnswerModel.find({ questionId: questionId });
 
     if (answers.length === 0) {
       return res
@@ -45,7 +45,7 @@ const CREATE_ANSWER_BY_QUESTION_ID = async (req, res) => {
 const DELETE_ANSWER_BY_ID = async (req, res) => {
   const answerId = req.params.id;
   try {
-    const deletedAnswer = await AnswerModel.findOneAndDelete({
+    const deletedAnswer = await AnswerModel.findOneAndDelete({id:
       answerId,
     });
 

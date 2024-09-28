@@ -5,6 +5,7 @@ import cors from "cors";
 
 import answersRouter from "./src/route/answer.js";
 import questionsRouter from "./src/route/question.js";
+import usersRouter from "./src/route/user.js";
 
 const app = express();
 app.use(cors());
@@ -19,6 +20,7 @@ mongoose
 
 app.use(answersRouter);
 app.use(questionsRouter);
+app.use(usersRouter);
 
 
 app.use((req, res) => {

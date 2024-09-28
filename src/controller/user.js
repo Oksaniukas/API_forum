@@ -1,92 +1,112 @@
 import { v4 as uuidv4 } from "uuid";
-import CompanyModel from "../model/company.js";
+import UserModel from "../model/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const CREATE_COMPANY = async (req, res) => {
+const REGISTER_USER = async function (req, res) {
   try {
-    const salt = bcrypt.genSaltSync(10);
+    if (
+      !req.body.name ||
+      !req.body.email ||
+      !req.body.password 
+    ) {
+      return res.status(400).json({
+        message: "you didn't provided necessary data",
+      });
+    }
 
+    /***email validation */
+    const email = req.body.email;
+    const emailRegex = /@/;
+
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Email must contain "@" symbol' });
+    }
+    // ======================
+
+    // Check if email already exists
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "User with this email was registered" });
+    }
+
+    /***name validation */
+    const capitalizeFirstLetter = (name) => {
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    };
+
+    let name = req.body.name;
+    name = capitalizeFirstLetter(name);
+    // ======================
+
+    /*** Password validation ***/
+    const password = req.body.password;
+    const passwordRegex = /^(?=.*[0-9]).{6,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 6 characters long and contain at least one number",
+      });
+    }
+    // ======================
+
+    const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 
-    const company = {
+    const user = {
       email: req.body.email,
-      title: req.body.title,
-      address: req.body.address,
+      name: name ,
       id: uuidv4(),
       password: hash,
     };
 
-    const response = await new CompanyModel(company);
+    const newUser = await new UserModel(user);
+    await newUser.save();
 
-    await response.save();
-
-    return res
-      .status(201)
-      .json({ message: "company was created", response: response });
+    return res.status(200).json({
+      user: newUser,
+      message: "new user was successfully registered",
+    });
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "error in application" });
+    return res.status(500).json({ message: "Server error " });
   }
 };
 
 const LOGIN = async (req, res) => {
   try {
-    const company = await CompanyModel.findOne({ email: req.body.email });
+    const user = await UserModel.findOne({ email: req.body.email });
 
-    if (!company) {
-      return res.status(401).json({ message: "Your email or password is bad" });
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
     }
 
-    const isPasswordMatch = bcrypt.compareSync(
+    const isPasswordValid = bcrypt.compareSync(
       req.body.password,
-      company.password
+      user.password
     );
 
-    if (!isPasswordMatch) {
-      return res.status(401).json({ message: "Your email or password is bad" });
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Your  password is bad" });
     }
 
     const token = jwt.sign(
-      { email: company.email, companyId: company.id },
+      { userId: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" }
-    );
-
-    return res.status(200).json({ token: token , companyId: company.id});
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: "error in application" });
-  }
-};
-
-const GET_COMPANY_BY_ID = async (req, res) => {
-  try {
-    const response = await CompanyModel.findOne({ id: req.params.id });
-
-    await response.save();
-
-    return res.status(200).json({ company: response });
-  } catch (err) {
-    console.log(err);
-    return res.status(500).json({ message: "error in application" });
-  }
-};
-
-const DELETE_COMPANY_BY_ID = async (req, res) => {
-  try {
-    const response = await CompanyModel.findOneAndDelete({
-      id: req.params.id,
-    });
-
-    // await response.save();
+      { expiresIn: "2h" }
+    );  
+   
+    await user.save();
 
     return res
       .status(200)
-      .json({ message: "Company was deleted", company: response });
+      .json({ message: "successfully Login", token });
   } catch (err) {
     console.log(err);
-    return res.status(500).json({ message: "error in application" });
+    return res.status(500).json({ message: " error during login " , error: err.message });
   }
 };
 
@@ -102,4 +122,9 @@ const VALIDATE_LOGIN = async (req, res) => {
   }
 };
 
-export { CREATE_COMPANY, GET_COMPANY_BY_ID, LOGIN, DELETE_COMPANY_BY_ID, VALIDATE_LOGIN };
+
+export {
+  REGISTER_USER,
+  LOGIN,
+  VALIDATE_LOGIN,
+  };
