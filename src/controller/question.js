@@ -19,23 +19,30 @@ const GET_ALL_QUESTIONS = async (req, res) => {
 
 const CREATE_QUESTION = async (req, res) => {
   try {
+    const { questionText, userId } = req.body; // Destructure the body, remove date
+
+    // Check for required fields
+    if (!questionText || !userId) {
+      return res.status(400).json({ message: "Question text and user ID are required" });
+    }
+
+    // Set date to the current date if not provided
+    const date = new Date(); // Current date and time
+
     const question = {
       id: uuidv4(),
-      questionText: req.body.questionText,
-      date: req.body.date,
-      userId: req.body.userId,
+      questionText,
+      date, // Use the current date here
+      userId,
     };
+
     const newQuestion = await new QuestionModel(question);
     await newQuestion.save();
 
-    return res
-      .status(201)
-      .json({ message: "question was created", response: newQuestion });
+    return res.status(201).json({ message: "Question was created", response: newQuestion });
   } catch (err) {
     console.log(err);
-    return res
-      .status(500)
-      .json({ message: "error in application", error: err.message });
+    return res.status(500).json({ message: "Error in application", error: err.message });
   }
 };
 

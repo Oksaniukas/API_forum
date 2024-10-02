@@ -10,7 +10,7 @@ import auth from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/questions", auth, GET_ALL_QUESTIONS);
+router.get("/questions", GET_ALL_QUESTIONS);
 router.post("/question", auth, CREATE_QUESTION);
 router.delete("/question/:id", auth, DELETE_QUESTION_BY_ID);
 
