@@ -2,9 +2,9 @@ import { v4 as uuidv4 } from "uuid";
 import AnswerModel from "../model/answer.js";
 
 const GET_ANSWER_BY_QUESTION_ID = async (req, res) => {
-  const questionId = req.params.id;
+  const { id } = req.params;
   try {
-    const answers = await AnswerModel.find({ questionId: questionId });
+    const answers = await AnswerModel.find({ questionId: id });
 
     if (answers.length === 0) {
       return res
@@ -45,9 +45,7 @@ const CREATE_ANSWER_BY_QUESTION_ID = async (req, res) => {
 const DELETE_ANSWER_BY_ID = async (req, res) => {
   const answerId = req.params.id;
   try {
-    const deletedAnswer = await AnswerModel.findOneAndDelete({id:
-      answerId,
-    });
+    const deletedAnswer = await AnswerModel.findOneAndDelete({ id: answerId });
 
     if (!deletedAnswer) {
       return res.status(404).json({ message: "Answer not found" });

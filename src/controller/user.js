@@ -66,9 +66,16 @@ const REGISTER_USER = async function (req, res) {
     const newUser = await new UserModel(user);
     await newUser.save();
 
+     // **Generate JWT token right after registration**
+     const token = jwt.sign(
+      { userId: newUser.id, email: newUser.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "2h" }
+    );
+
     return res.status(200).json({
       user: newUser,
-      message: "new user was successfully registered",
+      message: "new user was successfully registered and logged in", token
     });
   } catch (err) {
     console.log(err);
@@ -103,7 +110,7 @@ const LOGIN = async (req, res) => {
 
     return res
       .status(200)
-      .json({ message: "successfully Login", token });
+      .json({ message: "successfully Login", token,  userId: user.id,  });
   } catch (err) {
     console.log(err);
     return res.status(500).json({ message: " error during login " , error: err.message });
