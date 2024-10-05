@@ -12,7 +12,7 @@ const GET_ANSWER_BY_QUESTION_ID = async (req, res) => {
         .json({ message: "No answers found for this question" });
     }
 
-    res.status(200).json({ answers: answers }); // Return the answers as a JSON response
+    res.status(200).json(answers); // Return the answers as a JSON response
   } catch (error) {
     res
       .status(500)
