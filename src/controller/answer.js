@@ -27,6 +27,7 @@ const CREATE_ANSWER_BY_QUESTION_ID = async (req, res) => {
     answerText: req.body.answerText,
     date: req.body.date,
     gainedLikesNumber: req.body.gainedLikesNumber || 0,
+    gainedDislikesNumber: req.body.gainedDislikesNumber || 0,
     questionId: questionId,
   };
   try {
@@ -64,8 +65,58 @@ const DELETE_ANSWER_BY_ID = async (req, res) => {
   }
 };
 
+
+const LIKE_ANSWER_BY_ID = async (req, res) => {
+  const answerId = req.params.id;
+  try {
+    const updatedAnswer = await AnswerModel.findOneAndUpdate(
+      { id: answerId },
+      { $inc: { gainedLikesNumber: 1 } },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedAnswer) {
+      return res.status(404).json({ message: "Answer not found" });
+    }
+
+    return res.status(200).json({
+      message: "Like added successfully",
+      answer: updatedAnswer,
+    });
+  } catch (error) {
+    console.error('Error liking answer:', error);
+    return res.status(500).json({ message: "Error liking answer" });
+  }
+};
+
+const DISLIKE_ANSWER_BY_ID = async (req, res) => {
+  const answerId = req.params.id;
+  try {
+    const updatedAnswer = await AnswerModel.findOneAndUpdate(
+      { id: answerId },
+      { $inc: { gainedDislikesNumber: 1 } },
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedAnswer) {
+      return res.status(404).json({ message: "Answer not found" });
+    }
+
+    return res.status(200).json({
+      message: "Dislike added successfully",
+      answer: updatedAnswer,
+    });
+  } catch (error) {
+    console.error('Error disliking answer:', error);
+    return res.status(500).json({ message: "Error disliking answer" });
+  }
+}
+
+
 export {
   GET_ANSWER_BY_QUESTION_ID,
   CREATE_ANSWER_BY_QUESTION_ID,
   DELETE_ANSWER_BY_ID,
+  LIKE_ANSWER_BY_ID,
+  DISLIKE_ANSWER_BY_ID,
 };
